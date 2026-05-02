@@ -1,1 +1,351 @@
+<!DOCTYPE html>
+<html lang="de">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
+<meta name="theme-color" content="#FAF8F4">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-status-bar-style" content="default">
+<meta name="apple-mobile-web-app-title" content="Journal">
+<title>Fred · Tagesjournal</title>
+<style>
+* { box-sizing: border-box; margin: 0; padding: 0; }
+html, body { -webkit-font-smoothing: antialiased; -moz-osx-font-smoothing: grayscale; -webkit-text-size-adjust: 100%; }
+body { font-family: -apple-system, BlinkMacSystemFont, "SF Pro Text", "Helvetica Neue", sans-serif; background: #FAF8F4; color: #1A1815; min-height: 100vh; padding-top: env(safe-area-inset-top); padding-bottom: env(safe-area-inset-bottom); }
+.serif { font-family: "Iowan Old Style", "Palatino", Georgia, serif; }
+.wrap { max-width: 640px; margin: 0 auto; }
+header { padding: 28px 24px 20px; }
+.top-row { display: flex; justify-content: space-between; align-items: center; }
+.top-label { font-size: 11px; text-transform: uppercase; letter-spacing: 0.18em; color: #8A8478; font-weight: 600; }
+.save-status { font-size: 11px; color: #8A8478; display: flex; align-items: center; gap: 5px; }
+.save-status svg { width: 11px; height: 11px; }
+.date-nav { padding: 0 24px; display: flex; align-items: center; justify-content: space-between; margin-bottom: 8px; }
+.nav-btn { background: none; border: none; padding: 10px; color: #5C5851; cursor: pointer; -webkit-tap-highlight-color: transparent; border-radius: 50%; }
+.nav-btn:active { background: rgba(0,0,0,0.06); }
+.nav-btn svg { width: 22px; height: 22px; }
+.date-block { text-align: center; flex: 1; }
+.date-big { font-family: "Iowan Old Style", "Palatino", Georgia, serif; font-size: 44px; font-weight: 600; line-height: 1.05; letter-spacing: -0.02em; color: #1A1815; }
+.date-long { font-size: 12px; color: #8A8478; margin-top: 6px; }
+.today-row { text-align: center; margin-bottom: 28px; min-height: 22px; }
+.today-btn { background: none; border: none; cursor: pointer; font-size: 11px; text-transform: uppercase; letter-spacing: 0.12em; color: #C84B31; font-weight: 600; padding: 4px 12px; -webkit-tap-highlight-color: transparent; }
+.red-flag { margin: 0 24px 24px; padding: 14px 16px; background: #FBE9E2; border: 1px solid #E8C5B8; border-radius: 4px; display: flex; gap: 10px; align-items: flex-start; font-size: 13px; color: #7A2818; line-height: 1.45; }
+.red-flag svg { width: 16px; height: 16px; color: #C84B31; flex-shrink: 0; margin-top: 2px; }
+main { padding: 0 24px; }
+section { margin-bottom: 40px; }
+.sec-head { display: flex; align-items: baseline; gap: 12px; margin-bottom: 22px; padding-bottom: 10px; border-bottom: 1px solid; }
+.sec-icon { display: flex; align-items: center; }
+.sec-icon svg { width: 18px; height: 18px; }
+.sec-title { font-family: "Iowan Old Style", "Palatino", Georgia, serif; font-size: 26px; font-weight: 600; line-height: 1; letter-spacing: -0.01em; }
+.sec-sub { font-size: 10px; text-transform: uppercase; letter-spacing: 0.12em; color: #8A8478; margin-top: 4px; font-weight: 600; }
+.sec-morning .sec-head { border-color: rgba(200,75,49,0.22); }
+.sec-morning .sec-icon { color: #C84B31; }
+.sec-day .sec-head { border-color: rgba(61,107,92,0.22); }
+.sec-day .sec-icon { color: #3D6B5C; }
+.sec-evening .sec-head { border-color: rgba(58,74,107,0.22); }
+.sec-evening .sec-icon { color: #3A4A6B; }
+.grid-2 { display: grid; grid-template-columns: 1fr 1fr; gap: 18px 22px; }
+.stack { display: flex; flex-direction: column; gap: 18px; }
+.mb-5 { margin-bottom: 22px; }
+.field { display: block; }
+.field-label { font-size: 10px; text-transform: uppercase; letter-spacing: 0.12em; color: #8A8478; font-weight: 600; margin-bottom: 6px; display: block; }
+.field-line { border-bottom: 1px solid #D6D0C4; padding-bottom: 6px; }
+.field-line.focused { border-bottom-color: #C84B31; }
+.field input, .field textarea, .field select { width: 100%; background: transparent; border: none; outline: none; font-family: inherit; color: #1A1815; -webkit-appearance: none; appearance: none; }
+.field input[type="number"] { font-family: "Iowan Old Style", "Palatino", Georgia, serif; font-size: 24px; font-weight: 600; }
+.field select { font-family: "Iowan Old Style", "Palatino", Georgia, serif; font-size: 20px; font-weight: 600; cursor: pointer; padding-right: 18px; background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='12' viewBox='0 0 24 24' fill='none' stroke='%238A8478' stroke-width='2'%3E%3Cpolyline points='6 9 12 15 18 9'/%3E%3C/svg%3E"); background-repeat: no-repeat; background-position: right 0 center; }
+.field textarea, .field input[type="text"] { font-size: 16px; line-height: 1.5; resize: none; }
+.field textarea::placeholder, .field input::placeholder { color: #B5AFA3; }
+.field-hint { font-size: 10px; color: #8A8478; margin-top: 3px; }
+input[type=number]::-webkit-inner-spin-button, input[type=number]::-webkit-outer-spin-button { -webkit-appearance: none; margin: 0; }
+input[type=number] { -moz-appearance: textfield; }
+.actions { display: flex; gap: 10px; flex-wrap: wrap; padding: 12px 0 0; }
+.btn { display: inline-flex; align-items: center; gap: 8px; padding: 13px 18px; font-size: 13px; font-weight: 600; border: none; cursor: pointer; border-radius: 3px; font-family: inherit; -webkit-tap-highlight-color: transparent; }
+.btn:active { opacity: 0.75; }
+.btn svg { width: 14px; height: 14px; }
+.btn-primary { background: #1A1815; color: #FAF8F4; }
+.btn-secondary { background: transparent; color: #1A1815; border: 1px solid #D6D0C4; }
+footer { text-align: center; padding: 36px 24px 56px; }
+.footer-quote { font-family: "Iowan Old Style", "Palatino", Georgia, serif; font-style: italic; font-size: 13px; color: #8A8478; }
+.footer-stat { font-size: 10px; color: #8A8478; margin-top: 8px; text-transform: uppercase; letter-spacing: 0.1em; font-weight: 600; }
+.modal-overlay { position: fixed; top: 0; left: 0; right: 0; bottom: 0; z-index: 100; background: rgba(26,24,21,0.5); display: flex; align-items: flex-end; justify-content: center; }
+.modal { width: 100%; max-height: 85vh; background: #FAF8F4; border-radius: 14px 14px 0 0; display: flex; flex-direction: column; padding-bottom: env(safe-area-inset-bottom); }
+@media (min-width: 640px) { .modal-overlay { align-items: center; } .modal { max-width: 640px; border-radius: 14px; } }
+.modal-head { padding: 22px 22px 14px; display: flex; justify-content: space-between; align-items: flex-start; }
+.modal-title { font-family: "Iowan Old Style", "Palatino", Georgia, serif; font-size: 22px; font-weight: 600; }
+.modal-sub { font-size: 11px; color: #8A8478; margin-top: 4px; text-transform: uppercase; letter-spacing: 0.1em; font-weight: 600; }
+.modal-close { background: none; border: none; cursor: pointer; font-size: 30px; color: #8A8478; line-height: 0.8; padding: 0; width: 32px; height: 32px; }
+.modal-body { flex: 1; overflow: auto; padding: 0 22px 16px; }
+.modal-foot { padding: 14px 22px; border-top: 1px solid #E8E2D4; display: flex; gap: 10px; }
+.modal-foot .btn { flex: 1; justify-content: center; }
+.export-pre { padding: 14px; background: #F0EBE0; border-radius: 4px; font-family: ui-monospace, "SF Mono", Menlo, Consolas, monospace; font-size: 11.5px; line-height: 1.55; white-space: pre-wrap; word-wrap: break-word; }
+.toast { position: fixed; left: 50%; bottom: 24px; transform: translateX(-50%) translateY(20px); background: #1A1815; color: #FAF8F4; padding: 11px 18px; border-radius: 4px; font-size: 12.5px; font-weight: 600; z-index: 200; opacity: 0; transition: all 0.25s; pointer-events: none; }
+.toast.show { opacity: 1; transform: translateX(-50%) translateY(0); }
+.chart { margin-bottom: 26px; }
+.chart-head { display: flex; justify-content: space-between; align-items: baseline; margin-bottom: 10px; }
+.chart-label { font-size: 10px; text-transform: uppercase; letter-spacing: 0.12em; color: #8A8478; font-weight: 600; }
+.chart-avg { font-family: "Iowan Old Style", "Palatino", Georgia, serif; font-size: 13px; font-weight: 600; }
+.chart-bars { display: flex; align-items: flex-end; gap: 3px; height: 70px; }
+.chart-bar { flex: 1; min-width: 0; }
+.chart-dates { display: flex; gap: 3px; margin-top: 5px; }
+.chart-date { flex: 1; text-align: center; font-size: 9px; color: #8A8478; }
+.empty { text-align: center; padding: 40px 20px; font-size: 13px; color: #8A8478; }
+</style>
+</head>
+<body>
+<div class="wrap">
+<header>
+<div class="top-row">
+<div class="top-label">Fred · Tagesjournal</div>
+<div class="save-status"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><polyline points="20 6 9 17 4 12"/></svg><span id="saveText">gespeichert</span></div>
+</div>
+</header>
+<div class="date-nav">
+<button class="nav-btn" id="prevDay" aria-label="Vorheriger Tag"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="15 18 9 12 15 6"/></svg></button>
+<div class="date-block"><div class="date-big" id="dateBig">Lade…</div><div class="date-long" id="dateLong">&nbsp;</div></div>
+<button class="nav-btn" id="nextDay" aria-label="Nächster Tag"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="9 18 15 12 9 6"/></svg></button>
+</div>
+<div class="today-row"><button class="today-btn" id="todayBtn" style="display:none">→ Zu heute</button></div>
+<div class="red-flag" id="redFlag" style="display:none">
+<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M10.29 3.86 1.82 18a2 2 0 0 0 1.71 3h16.94a2 2 0 0 0 1.71-3L13.71 3.86a2 2 0 0 0-3.42 0z"/><line x1="12" y1="9" x2="12" y2="13"/><line x1="12" y1="17" x2="12.01" y2="17"/></svg>
+<div><strong>Heute easy:</strong> <span id="redFlagText"></span>. Recovery ist Training.</div>
+</div>
+<main>
+<section class="sec-morning">
+<div class="sec-head">
+<div class="sec-icon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="4"/><path d="M12 2v2"/><path d="M12 20v2"/><path d="m4.93 4.93 1.41 1.41"/><path d="m17.66 17.66 1.41 1.41"/><path d="M2 12h2"/><path d="M20 12h2"/><path d="m6.34 17.66-1.41 1.41"/><path d="m19.07 4.93-1.41 1.41"/></svg></div>
+<div><div class="sec-title">Morgen</div><div class="sec-sub">2 Min · nach dem Aufstehen</div></div>
+</div>
+<div class="grid-2 mb-5">
+<label class="field"><span class="field-label">Schlaf (h)</span><div class="field-line"><input type="number" inputmode="decimal" step="0.1" data-field="sleep" placeholder="—"></div></label>
+<label class="field"><span class="field-label">HRV (ms)</span><div class="field-line"><input type="number" inputmode="numeric" data-field="hrv" placeholder="—"></div></label>
+<label class="field"><span class="field-label">Resting HR</span><div class="field-line"><input type="number" inputmode="numeric" data-field="restingHr" placeholder="—"></div></label>
+<label class="field"><span class="field-label">Energie 1–10</span><div class="field-line"><input type="number" inputmode="numeric" min="1" max="10" data-field="morningEnergy" placeholder="—"></div></label>
+</div>
+<label class="field"><span class="field-label">Heute wichtig</span><div class="field-line"><textarea rows="2" data-field="todayMatters" placeholder="Ein Satz. Was MUSS heute passieren?"></textarea></div></label>
+</section>
+<section class="sec-day">
+<div class="sec-head">
+<div class="sec-icon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M22 12h-4l-3 9L9 3l-3 9H2"/></svg></div>
+<div><div class="sec-title">Tag</div><div class="sec-sub">30 Sek · nach dem Training</div></div>
+</div>
+<div class="grid-2">
+<label class="field"><span class="field-label">Training</span><div class="field-line"><select data-field="training"><option value="">—</option><option value="Easy">Easy</option><option value="Tempo">Tempo</option><option value="Long">Long</option><option value="Intervalle">Intervalle</option><option value="Kettlebell">Kettlebell</option><option value="Breakdance">Breakdance</option><option value="Rad">Rad</option><option value="Rest">Rest</option><option value="Krank">Krank</option></select></div></label>
+<label class="field"><span class="field-label">km</span><div class="field-line"><input type="number" inputmode="decimal" step="0.1" data-field="km" placeholder="—"></div></label>
+<label class="field"><span class="field-label">Avg HR</span><div class="field-line"><input type="number" inputmode="numeric" data-field="avgHr" placeholder="—"></div></label>
+<label class="field"><span class="field-label">RPE 1–10</span><div class="field-line"><input type="number" inputmode="numeric" min="1" max="10" data-field="rpe" placeholder="—"></div><div class="field-hint">Wie hart gefühlt</div></label>
+</div>
+</section>
+<section class="sec-evening">
+<div class="sec-head">
+<div class="sec-icon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 12.79A9 9 0 1 1 11.21 3 7 7 0 0 0 21 12.79z"/></svg></div>
+<div><div class="sec-title">Abend</div><div class="sec-sub">3 Min · vor dem Schlafen</div></div>
+</div>
+<div class="grid-2 mb-5">
+<label class="field"><span class="field-label">Compargo (Min)</span><div class="field-line"><input type="number" inputmode="numeric" data-field="compargoMin" placeholder="—"></div></label>
+<label class="field"><span class="field-label">Familie</span><div class="field-line"><select data-field="family"><option value="">—</option><option value="gut">🟢 Gut</option><option value="ok">🟡 OK</option><option value="knapp">🔴 Knapp</option></select></div></label>
+</div>
+<div class="stack">
+<label class="field"><span class="field-label">Compargo Fokus</span><div class="field-line"><textarea rows="1" data-field="compargoFocus" placeholder="Woran heute gebaut?"></textarea></div></label>
+<label class="field"><span class="field-label">Lief gut</span><div class="field-line"><textarea rows="2" data-field="wentWell" placeholder="Ein konkreter Highlight."></textarea></div></label>
+<label class="field"><span class="field-label">Lesson</span><div class="field-line"><textarea rows="2" data-field="lesson" placeholder="Was lerne ich? Was morgen anders?"></textarea></div></label>
+</div>
+</section>
+<div class="actions">
+<button class="btn btn-primary" id="exportBtn"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="7 10 12 15 17 10"/><line x1="12" y1="15" x2="12" y2="3"/></svg><span>Wochenexport</span></button>
+<button class="btn btn-secondary" id="trendsBtn"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="23 6 13.5 15.5 8.5 10.5 1 18"/><polyline points="17 6 23 6 23 12"/></svg><span>Trends</span></button>
+</div>
+</main>
+<footer>
+<div class="footer-quote">„Konsistenz schlägt Intensität."</div>
+<div class="footer-stat" id="statDays">0 Tage erfasst</div>
+</footer>
+</div>
+<div id="toast" class="toast">In Zwischenablage kopiert</div>
+<div id="modalContainer"></div>
+<script>
+(function() {
+'use strict';
+var STORAGE_KEY = 'fred-journal-v2';
+var WEEKDAYS = ['So','Mo','Di','Mi','Do','Fr','Sa'];
+var MONTHS = ['Januar','Februar','März','April','Mai','Juni','Juli','August','September','Oktober','November','Dezember'];
+var FAMILY_LABELS = { gut: '🟢 Gut', ok: '🟡 OK', knapp: '🔴 Knapp' };
+function pad2(n) { n = String(n); return n.length < 2 ? '0' + n : n; }
+function todayISO() { var d = new Date(); return d.getFullYear() + '-' + pad2(d.getMonth() + 1) + '-' + pad2(d.getDate()); }
+function isoToDate(iso) { var p = iso.split('-'); return new Date(parseInt(p[0],10), parseInt(p[1],10)-1, parseInt(p[2],10), 12, 0, 0); }
+function formatShort(iso) { var d = isoToDate(iso); return pad2(d.getDate()) + '.' + pad2(d.getMonth()+1) + '. ' + WEEKDAYS[d.getDay()]; }
+function formatLong(iso) { var d = isoToDate(iso); return d.getDate() + '. ' + MONTHS[d.getMonth()] + ' ' + d.getFullYear(); }
+function addDays(iso, n) { var d = isoToDate(iso); d.setDate(d.getDate() + n); return d.getFullYear() + '-' + pad2(d.getMonth()+1) + '-' + pad2(d.getDate()); }
+var state = { date: todayISO(), data: {} };
+function loadData() { try { var raw = localStorage.getItem(STORAGE_KEY); if (raw) state.data = JSON.parse(raw) || {}; } catch (e) { state.data = {}; } }
+function saveData() { try { localStorage.setItem(STORAGE_KEY, JSON.stringify(state.data)); } catch (e) {} }
+function getEntry(date) { return state.data[date] || {}; }
+function setSaving(s) { var el = document.getElementById('saveText'); if (el) el.textContent = s ? 'speichere…' : 'gespeichert'; }
+function checkRedFlags() {
+var e = getEntry(state.date); var flags = [];
+if (e.sleep && parseFloat(e.sleep) < 6.5) flags.push('Schlaf < 6.5h');
+if (e.morningEnergy && parseInt(e.morningEnergy, 10) <= 5) flags.push('Energie ≤ 5');
+var b = document.getElementById('redFlag'), t = document.getElementById('redFlagText');
+if (!b || !t) return;
+if (flags.length > 0) { t.textContent = flags.join(' · '); b.style.display = 'flex'; } else { b.style.display = 'none'; }
+}
+function updateStats() {
+var keys = Object.keys(state.data), count = 0;
+for (var i = 0; i < keys.length; i++) {
+var d = state.data[keys[i]]; if (!d) continue;
+var hasAny = false;
+for (var k in d) { if (d.hasOwnProperty(k) && d[k] !== '' && d[k] != null) { hasAny = true; break; } }
+if (hasAny) count++;
+}
+var el = document.getElementById('statDays'); if (el) el.textContent = count + ' Tage erfasst';
+}
+function render() {
+var bigEl = document.getElementById('dateBig'); var longEl = document.getElementById('dateLong');
+if (bigEl) bigEl.textContent = formatShort(state.date);
+if (longEl) longEl.textContent = formatLong(state.date);
+var todayBtn = document.getElementById('todayBtn');
+if (todayBtn) todayBtn.style.display = (state.date === todayISO()) ? 'none' : 'inline-block';
+var entry = getEntry(state.date), inputs = document.querySelectorAll('[data-field]');
+for (var i = 0; i < inputs.length; i++) {
+var key = inputs[i].getAttribute('data-field');
+inputs[i].value = entry[key] != null ? entry[key] : '';
+}
+checkRedFlags(); updateStats();
+}
+function updateField(field, value) {
+if (!state.data[state.date]) state.data[state.date] = {};
+state.data[state.date][field] = value;
+setSaving(true); saveData(); checkRedFlags(); updateStats();
+setTimeout(function() { setSaving(false); }, 250);
+}
+function showToast(text) { var t = document.getElementById('toast'); if (!t) return; t.textContent = text; t.classList.add('show'); setTimeout(function() { t.classList.remove('show'); }, 1800); }
+function copyText(text) {
+if (navigator.clipboard && navigator.clipboard.writeText) {
+navigator.clipboard.writeText(text).then(function() { showToast('In Zwischenablage kopiert'); }, function() { fallbackCopy(text); });
+} else { fallbackCopy(text); }
+}
+function fallbackCopy(text) {
+var ta = document.createElement('textarea'); ta.value = text;
+ta.style.position = 'fixed'; ta.style.opacity = '0';
+document.body.appendChild(ta); ta.focus(); ta.select();
+try { document.execCommand('copy'); showToast('In Zwischenablage kopiert'); } catch (e) { showToast('Kopieren fehlgeschlagen'); }
+document.body.removeChild(ta);
+}
+function buildExportEntry(date) {
+var e = state.data[date] || {}, hasAny = false;
+for (var k in e) { if (e.hasOwnProperty(k) && e[k] !== '' && e[k] != null) { hasAny = true; break; } }
+if (!hasAny) return formatShort(date) + ' — keine Daten';
+var lines = [formatShort(date)], morning = [];
+if (e.sleep) morning.push('Schlaf ' + e.sleep + 'h');
+if (e.hrv) morning.push('HRV ' + e.hrv);
+if (e.restingHr) morning.push('RHR ' + e.restingHr);
+if (e.morningEnergy) morning.push('Energie ' + e.morningEnergy + '/10');
+if (morning.length) lines.push('  🌅 ' + morning.join(' · '));
+if (e.todayMatters) lines.push('     Fokus: ' + e.todayMatters);
+var training = [];
+if (e.training) training.push(e.training);
+if (e.km) training.push(e.km + 'km');
+if (e.avgHr) training.push('AvgHR ' + e.avgHr);
+if (e.rpe) training.push('RPE ' + e.rpe + '/10');
+if (training.length) lines.push('  🏃 ' + training.join(' · '));
+var evening = [];
+if (e.compargoMin) evening.push('Compargo ' + e.compargoMin + 'min');
+if (e.compargoFocus) evening.push(e.compargoFocus);
+if (e.family && FAMILY_LABELS[e.family]) evening.push('Familie ' + FAMILY_LABELS[e.family]);
+if (evening.length) lines.push('  🌙 ' + evening.join(' · '));
+if (e.wentWell) lines.push('     Lief gut: ' + e.wentWell);
+if (e.lesson) lines.push('     Lesson: ' + e.lesson);
+return lines.join('\n');
+}
+function buildExportText() {
+var days = [];
+for (var i = 6; i >= 0; i--) days.push(addDays(state.date, -i));
+var head = 'Fred · Wochenexport (' + formatShort(days[0]) + ' – ' + formatShort(days[6]) + ')';
+var blocks = [];
+for (var j = 0; j < days.length; j++) blocks.push(buildExportEntry(days[j]));
+return head + '\n\n' + blocks.join('\n\n');
+}
+function escapeHtml(s) { return String(s).replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;'); }
+function openModal(html, onMount) {
+var c = document.getElementById('modalContainer');
+c.innerHTML = '<div class="modal-overlay" id="overlayInner">' + html + '</div>';
+var overlay = document.getElementById('overlayInner');
+overlay.addEventListener('click', function(ev) { if (ev.target === overlay) closeModal(); });
+var closeBtn = overlay.querySelector('.modal-close');
+if (closeBtn) closeBtn.addEventListener('click', closeModal);
+if (onMount) onMount(overlay);
+}
+function closeModal() { var c = document.getElementById('modalContainer'); if (c) c.innerHTML = ''; }
+function showExport() {
+var text = buildExportText();
+var html = '<div class="modal"><div class="modal-head"><div><div class="modal-title">Wochenexport</div><div class="modal-sub">Letzte 7 Tage</div></div><button class="modal-close" aria-label="Schließen">×</button></div><div class="modal-body"><pre class="export-pre">' + escapeHtml(text) + '</pre></div><div class="modal-foot"><button class="btn btn-primary" id="copyBtn">Kopieren</button></div></div>';
+openModal(html, function(overlay) { var b = overlay.querySelector('#copyBtn'); if (b) b.addEventListener('click', function() { copyText(text); }); });
+}
+function buildChart(label, key, color, unit) {
+var allDays = Object.keys(state.data).sort(), days = allDays.slice(-14);
+var values = [], series = [];
+for (var i = 0; i < days.length; i++) {
+var v = state.data[days[i]] && state.data[days[i]][key];
+var num = (v !== undefined && v !== null && v !== '') ? parseFloat(v) : null;
+if (num !== null && !isNaN(num)) values.push(num);
+series.push({ date: formatShort(days[i]).split(' ')[0], val: (num !== null && !isNaN(num)) ? num : null });
+}
+if (values.length === 0) return '';
+var max = values[0], min = values[0];
+for (var k = 1; k < values.length; k++) { if (values[k] > max) max = values[k]; if (values[k] < min) min = values[k]; }
+var range = max - min || 1, sum = 0;
+for (var l = 0; l < values.length; l++) sum += values[l];
+var avg = (sum / values.length).toFixed(1);
+var bars = '';
+for (var m = 0; m < series.length; m++) {
+var s = series[m], h = s.val !== null ? Math.max(((s.val - min) / range) * 100, 8) : 0;
+var hidden = s.val === null ? 'opacity:0;' : '';
+bars += '<div class="chart-bar" style="height:' + h + '%;background:' + color + ';' + hidden + '"></div>';
+}
+var dates = '';
+for (var n = 0; n < series.length; n++) dates += '<div class="chart-date">' + (n === 0 || n === series.length - 1 ? series[n].date : '') + '</div>';
+return '<div class="chart"><div class="chart-head"><div class="chart-label">' + label + '</div><div class="chart-avg">Ø ' + avg + unit + '</div></div><div class="chart-bars">' + bars + '</div><div class="chart-dates">' + dates + '</div></div>';
+}
+function showTrends() {
+var allDays = Object.keys(state.data).sort(), days = allDays.slice(-14);
+var charts = buildChart('Schlaf','sleep','#C84B31','h') + buildChart('HRV','hrv','#3D6B5C','ms') + buildChart('Energie früh','morningEnergy','#A67C00','/10') + buildChart('Compargo Min','compargoMin','#3A4A6B','min');
+var body = (days.length === 0 || charts === '') ? '<div class="empty">Noch keine Daten — fang heute an, Trends erscheinen ab Tag 3.</div>' : charts;
+var html = '<div class="modal"><div class="modal-head"><div><div class="modal-title">Trends</div><div class="modal-sub">Letzte ' + days.length + ' Tage</div></div><button class="modal-close" aria-label="Schließen">×</button></div><div class="modal-body">' + body + '</div></div>';
+openModal(html);
+}
+function init() {
+try {
+loadData();
+var inputs = document.querySelectorAll('[data-field]');
+for (var i = 0; i < inputs.length; i++) {
+(function(el) {
+var field = el.getAttribute('data-field');
+var handler = function() { updateField(field, el.value); };
+el.addEventListener('input', handler);
+el.addEventListener('change', handler);
+var line = el.parentNode;
+if (line && line.className && line.className.indexOf('field-line') >= 0) {
+el.addEventListener('focus', function() { line.classList.add('focused'); });
+el.addEventListener('blur', function() { line.classList.remove('focused'); });
+}
+})(inputs[i]);
+}
+var prev = document.getElementById('prevDay'), next = document.getElementById('nextDay'), today = document.getElementById('todayBtn');
+if (prev) prev.addEventListener('click', function() { state.date = addDays(state.date, -1); render(); });
+if (next) next.addEventListener('click', function() { state.date = addDays(state.date, 1); render(); });
+if (today) today.addEventListener('click', function() { state.date = todayISO(); render(); });
+var exp = document.getElementById('exportBtn'), trd = document.getElementById('trendsBtn');
+if (exp) exp.addEventListener('click', showExport);
+if (trd) trd.addEventListener('click', showTrends);
+render();
+} catch (err) {
+var bigEl = document.getElementById('dateBig');
+if (bigEl) bigEl.textContent = 'Fehler';
+}
+}
+if (document.readyState === 'loading') document.addEventListener('DOMContentLoaded', init); else init();
+})();
+</script>
+</body>
+</html>
 
